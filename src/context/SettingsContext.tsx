@@ -1,6 +1,6 @@
 /**
  * Site Settings Context for Mobile App
- * Provides site configuration (name, logo, etc.) throughout the app
+ * Provides site configuration (name, logo, maintenance mode, app version, etc.) throughout the app
  */
 
 import React, {createContext, useContext, useState, useEffect, ReactNode} from 'react';
@@ -19,6 +19,16 @@ interface SiteSettings {
   instagramUrl: string;
   linkedinUrl: string;
   youtubeUrl: string;
+  // Maintenance mode
+  maintenanceMode: boolean;
+  maintenanceMessage: string;
+  // App version settings
+  appCurrentVersion: string;
+  appMinVersion: string;
+  appForceUpdate: boolean;
+  appUpdateMessage: string;
+  playStoreUrl: string;
+  appStoreUrl: string;
 }
 
 interface SettingsContextType {
@@ -39,6 +49,16 @@ const defaultSettings: SiteSettings = {
   instagramUrl: '',
   linkedinUrl: '',
   youtubeUrl: '',
+  // Maintenance mode defaults
+  maintenanceMode: false,
+  maintenanceMessage: 'We are currently under maintenance. Please check back soon.',
+  // App version defaults
+  appCurrentVersion: '1.0.0',
+  appMinVersion: '1.0.0',
+  appForceUpdate: false,
+  appUpdateMessage: 'A new version is available. Please update to continue.',
+  playStoreUrl: '',
+  appStoreUrl: '',
 };
 
 const SettingsContext = createContext<SettingsContextType>({
@@ -105,21 +125,25 @@ export function SettingsProvider({children}: SettingsProviderProps) {
           const newSettings: SiteSettings = {
             siteName: data.siteName || data.site_name || defaultSettings.siteName,
             tagline: data.tagline || data.site_tagline || defaultSettings.tagline,
-            supportEmail:
-              data.supportEmail || data.support_email || defaultSettings.supportEmail,
-            supportPhone:
-              data.supportPhone || data.support_phone || defaultSettings.supportPhone,
-            whatsappNumber:
-              data.whatsappNumber || data.whatsapp_number || defaultSettings.whatsappNumber,
+            supportEmail: data.supportEmail || data.support_email || defaultSettings.supportEmail,
+            supportPhone: data.supportPhone || data.support_phone || defaultSettings.supportPhone,
+            whatsappNumber: data.whatsappNumber || data.whatsapp_number || defaultSettings.whatsappNumber,
             address: data.address || data.company_address || defaultSettings.address,
-            facebookUrl:
-              data.facebookUrl || data.facebook_url || defaultSettings.facebookUrl,
+            facebookUrl: data.facebookUrl || data.facebook_url || defaultSettings.facebookUrl,
             twitterUrl: data.twitterUrl || data.twitter_url || defaultSettings.twitterUrl,
-            instagramUrl:
-              data.instagramUrl || data.instagram_url || defaultSettings.instagramUrl,
-            linkedinUrl:
-              data.linkedinUrl || data.linkedin_url || defaultSettings.linkedinUrl,
+            instagramUrl: data.instagramUrl || data.instagram_url || defaultSettings.instagramUrl,
+            linkedinUrl: data.linkedinUrl || data.linkedin_url || defaultSettings.linkedinUrl,
             youtubeUrl: data.youtubeUrl || data.youtube_url || defaultSettings.youtubeUrl,
+            // Maintenance mode
+            maintenanceMode: data.maintenanceMode || false,
+            maintenanceMessage: data.maintenanceMessage || defaultSettings.maintenanceMessage,
+            // App version
+            appCurrentVersion: data.appCurrentVersion || defaultSettings.appCurrentVersion,
+            appMinVersion: data.appMinVersion || defaultSettings.appMinVersion,
+            appForceUpdate: data.appForceUpdate || false,
+            appUpdateMessage: data.appUpdateMessage || defaultSettings.appUpdateMessage,
+            playStoreUrl: data.playStoreUrl || defaultSettings.playStoreUrl,
+            appStoreUrl: data.appStoreUrl || defaultSettings.appStoreUrl,
           };
 
           setSettings(newSettings);

@@ -15,7 +15,8 @@ import {
 } from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
-import {useAuth, useSubscription} from '../context';
+import {useAuth, useSubscription, useSettings} from '../context';
+import {APP_VERSION, isVersionBelowMinimum} from '../config';
 import {AuthNavigator} from './AuthNavigator';
 import {MainTabNavigator} from './MainTabNavigator';
 import {DoubtScreen, StudyPlanScreen} from '../screens/main';
@@ -23,6 +24,7 @@ import {SubjectDetailScreen, ChapterScreen, LessonScreen} from '../screens/learn
 import {QuizTakingScreen} from '../screens/quiz';
 import {NotificationSettingsScreen} from '../screens/settings';
 import {SubscriptionScreen} from '../screens/subscription';
+import {MaintenanceScreen, ForceUpdateScreen} from '../screens/system';
 import {SubscriptionGuard} from '../components/common';
 import {useThemeColor} from '../hooks/useThemeColor';
 import {Icon} from '../components/ui';
@@ -95,6 +97,7 @@ function GuardedQuizTakingScreen(props: any) {
 export function AppNavigator() {
   const {isAuthenticated, isLoading, sessionTerminated, clearSessionTerminated} = useAuth();
   const {isLoading: subscriptionLoading} = useSubscription();
+  const {settings, loading: settingsLoading} = useSettings();
   
   const card = useThemeColor({}, 'card');
   const text = useThemeColor({}, 'text');
@@ -107,6 +110,32 @@ export function AppNavigator() {
   // Show loading screen while checking auth state
   if (isLoading) {
     return <LoadingScreen />;
+  }
+
+  // Show loading while checking settings for authenticated users
+  if (isAuthenticated && settingsLoading) {
+    return (
+      <View style={[styles.loadingContainer, {backgroundColor: background}]}>
+        <ActivityIndicator size="large" color={primary} />
+        <Text style={[styles.loadingText, {color: textSecondary}]}>
+          Loading...
+        </Text>
+      </View>
+    );
+  }
+
+  // Check for force update - this applies to ALL users (authenticated or not)
+  // Only check if settings are loaded and force update is enabled
+  if (!settingsLoading && settings.appForceUpdate && settings.appMinVersion) {
+    const needsUpdate = isVersionBelowMinimum(APP_VERSION.version, settings.appMinVersion);
+    if (needsUpdate) {
+      return <ForceUpdateScreen />;
+    }
+  }
+
+  // Show maintenance screen for authenticated users when maintenance mode is enabled
+  if (isAuthenticated && settings.maintenanceMode) {
+    return <MaintenanceScreen />;
   }
 
   // Show loading while checking subscription for authenticated users
